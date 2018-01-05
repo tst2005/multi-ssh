@@ -11,9 +11,12 @@ case "$2" in
 		if [ "$1" = "ALL" ]; then
 			(
 				cd -- "$GROUP_PATH" && \
-				for d in *; do
-					[ -e "$d" ] || continue
-					target_files . "$d"
+				for x in *; do
+					case "$x" in
+						(*'.list') [ -f "$x" ] || continue ;;
+						(*) [ -d "$x" ] || continue ;;
+					esac
+					target_files . "$x" || true
 				done
 			)
 		else
@@ -24,9 +27,12 @@ case "$2" in
 		if [ "${1:-ALL}" = "ALL" ]; then
 			(
 				cd -- "$GROUP_PATH" && \
-				for d in *; do
-					[ -e "$d" ] || continue
-					target_files "$d"
+				for x in *; do
+					case "$x" in
+						(*'.list') [ -f "$x" ] || continue ;;
+						(*) [ -d "$x" ] || continue ;;
+					esac
+					target_files "$x"
 				done
 			) | target_long2short
 		else
