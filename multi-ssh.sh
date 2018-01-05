@@ -94,15 +94,15 @@ fi
 
 ## loop through servers in group and execute specified command
 for i in $GROUP_LIST; do
-	### ignore if first char is #
-	IS_COMMENT=$(echo $i |cut -c1)
-	if [[ "$IS_COMMENT" == "#" ]]; then
-		continue
-	fi
+	case "$i" in
+		('') continue ;; # ignore empty line
+		('#'*) continue ;; # ignore comment line
+	esac
+
 	### get port
-	HOST=`echo $i |cut -d":" -f1`
-	PORT=`echo $i |cut -s -d":" -f2`
-	if [ "$PORT" = "" ]; then
+	HOST=$(echo $i |cut -d":" -f1)
+	PORT=$(echo $i |cut -s -d":" -f2)
+	if [ -z "$PORT" ]; then
 		PORT=22
 	fi
 	ssh -p $PORT $HOST "echo 0" &>/dev/null
@@ -118,15 +118,15 @@ for i in $GROUP_LIST; do
 		echo "### $i ###"
 	fi
 
-	if [ $dryrunflag == 1 ]; then
-		if [ "$@" = "" ] || [[ $stdinflag == 1 ]]; then
+	if [ "$dryrunflag" = "1" ]; then
+		if [ $# -eq 0 ] || [[ $stdinflag == 1 ]]; then
 			echo "cat <STDIN> |ssh -p $PORT -T $HOST $@"
 		else
 			echo "ssh -p $PORT -T $HOST $@"
 		fi
 	else
 		if [ $cronflag == 1 ]; then
-			if [ "$@" = "" ] || [[ $stdinflag == 1 ]]; then
+			if [ $# -eq 0 ] || [[ $stdinflag == 1 ]]; then
 				OUTPUT=$(cat $STDIN_TEMPFILE |ssh -p $PORT -T $HOST $@)
 			else
 				OUTPUT=$(ssh -p $PORT -T $HOST $@)
@@ -135,14 +135,13 @@ for i in $GROUP_LIST; do
 				if [ $silentflag == 0 ]; then
 					echo "### $i #######################################################################"
 				fi
-				IFS="
-"
+				IFS="$(printf '\n')"
 				for line in $OUTPUT; do
 					echo $line
 				done
 			fi
 		else
-			if [[ "$@" == "" || $stdinflag == 1 ]]; then
+			if [ $# -eq 0 ] || [[ $stdinflag == 1 ]]; then
 				cat $STDIN_TEMPFILE |ssh -p $PORT -T $HOST $@
 				#cat $STDIN_TEMPFILE |ssh -p $PORT -tt $HOST $@
 			else
