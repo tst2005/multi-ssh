@@ -93,15 +93,15 @@ if [ $# -eq 0 ] || [[ $stdinflag == 1 ]]; then
 fi
 
 ## loop through servers in group and execute specified command
-for i in $GROUP_LIST; do
-	case "$i" in
+for line in $GROUP_LIST; do
+	case "$line" in
 		('') continue ;; # ignore empty line
 		('#'*) continue ;; # ignore comment line
 	esac
 
 	### get port
-	HOST=$(echo $i |cut -d":" -f1)
-	PORT=$(echo $i |cut -s -d":" -f2)
+	HOST=$(echo "$line" |cut -d":" -f1)
+	PORT=$(echo "$line" |cut -s -d":" -f2)
 	if [ -z "$PORT" ]; then
 		PORT=22
 	fi
@@ -115,7 +115,7 @@ for i in $GROUP_LIST; do
 	fi
 	### don't print header on "silent" parameter
 	if [[ $silentflag == 0 && $cronflag == 0 ]]; then
-		echo "### $i ###"
+		echo "### $line ###"
 	fi
 
 	if [ "$dryrunflag" = "1" ]; then
@@ -133,7 +133,7 @@ for i in $GROUP_LIST; do
 			fi
 			if [[ "$OUTPUT" != "" ]]; then
 				if [ $silentflag == 0 ]; then
-					echo "### $i #######################################################################"
+					echo "### $line #######################################################################"
 				fi
 				IFS="$(printf '\n')"
 				for line in $OUTPUT; do

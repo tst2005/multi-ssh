@@ -69,9 +69,9 @@ PORT=""
 
 ## loop through servers in group and execute specified command
 for line in $GROUP_LIST; do
-	### ignore if first char is #
 	case "$line" in
-		('#'*) continue ;;
+		('') continue ;; # ignore empty line
+		('#'*) continue ;; # ignore comment line
 	esac
 
 	echo "### $line ###"
