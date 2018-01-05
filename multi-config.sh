@@ -13,11 +13,11 @@ case "$2" in
 				cd -- "$GROUP_PATH" && \
 				for d in *; do
 					[ -e "$d" ] || continue
-					gettargetsfrom . "$d"
+					target_files . "$d"
 				done
 			)
 		else
-			gettargetsfrom "$GROUP_PATH" "$1"
+			target_getfrom "$GROUP_PATH" "$1"
 		fi
 	;;
 	(list|"")
@@ -26,11 +26,11 @@ case "$2" in
 				cd -- "$GROUP_PATH" && \
 				for d in *; do
 					[ -e "$d" ] || continue
-					gettargetsfiles "$d"
+					target_files "$d"
 				done
-			) | sed -e 's,\.d/,::,g'
+			) | target_long2short
 		else
-			(cd -- "$GROUP_PATH" && gettargetsfiles "$1") | sed -e 's,\.d/,::,g' || exit 1
+			(cd -- "$GROUP_PATH" && target_files "$1") | target_long2short || exit 1
 		fi
 	;;
 esac

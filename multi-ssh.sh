@@ -74,10 +74,10 @@ if [ "$GROUP" = "ALL" ]; then
 		for d in *; do
 			[ -e "$d" ] || continue
 			gettargetsfrom . "$d"
-		done
+		done | sort -u
 	)"
 else
-	GROUP_LIST="$(gettargetsfrom "$GROUP_PATH" "$GROUP")"
+	GROUP_LIST="$(gettargetsfrom "$GROUP_PATH" "$GROUP" | sort -u)"
 fi
 
 ## initialize some vars
