@@ -60,7 +60,7 @@ GROUP_LIST=""
 #fi
 
 . ./lib/target.lib.sh
-GROUP_LIST="$(gettargetsfrom "$GROUP_PATH" "$GROUP")"
+GROUP_LIST="$(target_getfrom "$GROUP_PATH" "$GROUP")"
 
 
 ## initialize some vars
