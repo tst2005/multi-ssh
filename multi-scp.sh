@@ -46,37 +46,41 @@ fi
 GROUP_LIST=""
 
 ### all
-if [[ "$GROUP" == "all" ]]; then
-	GROUP_LIST=`cat $GROUP_PATH/*`
-else
-	### location and type?
-	LOCATION_AND_TYPE=$(echo $GROUP |awk '/[a-z]+-[a-z]+/ { print 1 }')
-	if [[ "$LOCATION_AND_TYPE" = "1" ]]; then
-		#echo "Location and Type"
-		GROUP_LIST=$(cat $GROUP_PATH/$GROUP)
-	else
-		GROUP_LIST=$(cat $GROUP_PATH/*${GROUP}*)
-	fi
-fi
+#if [[ "$GROUP" == "all" ]]; then
+#	GROUP_LIST=`cat $GROUP_PATH/*`
+#else
+#	### location and type?
+#	LOCATION_AND_TYPE=$(echo $GROUP |awk '/[a-z]+-[a-z]+/ { print 1 }')
+#	if [[ "$LOCATION_AND_TYPE" = "1" ]]; then
+#		#echo "Location and Type"
+#		GROUP_LIST=$(cat $GROUP_PATH/$GROUP)
+#	else
+#		GROUP_LIST=$(cat $GROUP_PATH/*${GROUP}*)
+#	fi
+#fi
+
+. ./lib/target.lib.sh
+GROUP_LIST="$(gettargetsfrom "$GROUP_PATH" "$GROUP")"
+
 
 ## initialize some vars
 HOST=""
 PORT=""
 
 ## loop through servers in group and execute specified command
-for i in $GROUP_LIST; do
+for line in $GROUP_LIST; do
 	### ignore if first char is #
-	IS_COMMENT=$(echo $i |cut -c1)
-	if [[ "$IS_COMMENT" == "#" ]]; then
-		continue
-	fi
-	echo "### $i ###"
-	HOST=`echo $i |cut -d":" -f1`
-	PORT=`echo $i |cut -s -d":" -f2`
-	if [[ "$PORT" == "" ]]; then
+	case "$line" in
+		('#'*) continue ;;
+	esac
+
+	echo "### $line ###"
+	HOST=$(echo "$line" |cut -d":" -f1)
+	PORT=$(echo "$line" |cut -s -d":" -f2)
+	if [ -z "$PORT" ]; then
 		PORT=22
 	fi
-	if [[ $dryrunflag = 1 ]]; then
+	if [ "$dryrunflag" = "1" ]; then
 		echo "scp -p -P $PORT $1 ${HOST}:$2"
 	else
 		scp -p -P $PORT $1 ${HOST}:$2

@@ -33,17 +33,17 @@ eval set -- "$TEMP"
 
 while true; do
 	case "$1" in
-	-g|--group) gflag=1;
+	(-g|--group) gflag=1;
 		case "$2" in
-		"") echo "Groupname missing!"; usage; shift 2 ;;
-		*) GROUP=$2; shift 2 ;;
+		("") echo "Groupname missing!"; usage; shift 2 ;;
+		(*) GROUP=$2; shift 2 ;;
 		esac ;;
-	-n|--dry-run) dryrunflag=1; shift ;;
-	-s|--silent) silentflag=1; shift ;;
-	-c|--cron) cronflag=1; shift ;;
-	-i|--stdin) stdinflag=1; shift ;;
-	--) shift; break ;;
-	*) echo "Internal error!" ; exit 1 ;;
+	(-n|--dry-run) dryrunflag=1; shift ;;
+	(-s|--silent) silentflag=1; shift ;;
+	(-c|--cron) cronflag=1; shift ;;
+	(-i|--stdin) stdinflag=1; shift ;;
+	(--) shift; break ;;
+	(*) echo "Internal error!" ; exit 1 ;;
 	esac
 done
 
@@ -52,20 +52,32 @@ if [[ $gflag = 0 ]]; then
 fi
 
 ## generate grouplist
-GROUP_LIST=""
+#GROUP_LIST=""
 
 ### all
-if [[ "$GROUP" == "all" ]]; then
-	GROUP_LIST=`cat $GROUP_PATH/*`
+#if [[ "$GROUP" == "all" ]]; then
+#	GROUP_LIST=`cat $GROUP_PATH/*`
+#else
+#	### location and type?
+#	LOCATION_AND_TYPE=$(echo $GROUP |awk '/[a-z]+-[a-z]+/ { print 1 }')
+#	if [[ "$LOCATION_AND_TYPE" = "1" ]]; then
+#		#echo "Location and Type"
+#		GROUP_LIST=$(cat $GROUP_PATH/$GROUP)
+#	else
+#		GROUP_LIST=$(cat $GROUP_PATH/*${GROUP}*)
+#	fi
+#fi
+
+. ./lib/target.lib.sh
+if [ "$GROUP" = "ALL" ]; then
+	GROUP_LIST="$( cd -- "$GROUP_PATH" && \
+		for d in *; do
+			[ -e "$d" ] || continue
+			gettargetsfrom . "$d"
+		done
+	)"
 else
-	### location and type?
-	LOCATION_AND_TYPE=$(echo $GROUP |awk '/[a-z]+-[a-z]+/ { print 1 }')
-	if [[ "$LOCATION_AND_TYPE" = "1" ]]; then
-		#echo "Location and Type"
-		GROUP_LIST=$(cat $GROUP_PATH/$GROUP)
-	else
-		GROUP_LIST=$(cat $GROUP_PATH/*${GROUP}*)
-	fi
+	GROUP_LIST="$(gettargetsfrom "$GROUP_PATH" "$GROUP")"
 fi
 
 ## initialize some vars
