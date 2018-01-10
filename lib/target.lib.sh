@@ -13,7 +13,7 @@ target_files() {
 		notfound=false
 	fi
 	if [ -d "$group" ]; then
-		find "$group" -type f -name '*.list' && notfound=false
+		find "$group" -type f -name '*.list' || notfound=false
 	fi
 	if $notfound; then return 1; fi
 }
@@ -24,6 +24,12 @@ target_getfrom() {
 		[ -f "$GROUP_PATH/$f" ] || continue
 		cat -- "$GROUP_PATH/$f"
 	done
+}
+
+# non recursive
+target_getonefrom() {
+	local GROUP_PATH="$1";shift;
+	[ ! -f "$GROUP_PATH/$1.list" ] || cat -- "$GROUP_PATH/$1.list"
 }
 
 target_short2long() {
